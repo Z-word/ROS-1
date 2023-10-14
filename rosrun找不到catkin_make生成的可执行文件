@@ -1,0 +1,40 @@
+问题如：[rosrun] Couldn't find executable named xxx
+
+首先，检查catkin_make是否编译成功。
+编译成功因该是会有类似 [100%] Built target xxx 这样的语句的
+如果没有但是也没报错，检查cmakelist.txt文件。
+检查是否有add_executable()，add_executable()等
+
+或者检查package.xml是否有依赖没有添加(这个一般会报错: roscpp  has been find_package()-ed but   is not listed as a build dependency in the package.xml)
+这种一般缺少啥就添加啥，比如这句报错，要添加
+<build_depend>roscpp</build_depend>
+<build_export_depend>roscpp</build_export_depend>
+<exec_depend>roscpp</exec_depend>
+
+若编译成功后仍未解决
+在rosrun执行可执行文件前(两个命令在同一个终端)，先执行$ source devel/setup.bash 
+
+若还未解决，进入catkin_ws(自己命的名)/devel/lib/(项目名) 下看有无生成可执行文件
+前一步没解决的话一般这里不会生成可执行文件
+再去ros_ws/catkin_ws/build/(项目名) 下查看有无生成可执行文件
+
+如果此处生成了可执行文件，可以直接把可执行文件复制过去
+问题:
+CMakeLists.txt文件中缺少catkin_package()语句, 导致catkin_make生成的可执行文件默认存放在build/目录下, 进而导致rosrun命令无法在devel/lib/目录下找到对应的可执行文件
+解决方案:
+在CMakeLists.txt文件中加入catkin_package()语句会让生成的可执行文件存放在devel/lib/目录下 (该语句会定义变量 CATKIN_PACKAGE_LIB_DESTINATION CATKIN_PACKAGE_BIN_DESTINATION，会用于设置输出等目录)
+
+若添加了catkin_package()还是没有解决，甚至会出现报错
+请仔细查看报错信息，然后逐步解决，对症下药
+我这里给出一种常见的方式
+检查cmakelist.txt文件中有些语句的顺序
+比如： generate_messages()要在要在catkin_package前,add_message_files后
+      catkin_package()要在find_package后
+      catkin_package()最好在add_executable()前，不然有时候也会导致可执行文件默认在build下
+      target_link_libraries()放在add_executable()后
+总之，养成良好的代码习惯挺重要的，尤其是cmake的语法和cmakelist.txt怎么写很重要，建议每个项目的cmakelist.txt都自己写，不复制粘贴
+
+回到第20行，如果没生成可执行文件
+还是检查CMakeLists.txt，我也不知道怎么搞，一般不会有这种情况
+
+2023-10-14
