@@ -1,0 +1,21 @@
+#进入src文件
+cd ~/catkin_ws/src/
+#创建功能包并添加依赖
+catkin_create_pkg learning_topic(功能包名字) roscpp rospy std_msgs geometry_msgs turtlesim(这一堆都是依赖，需要什么加什么)
+
+#进入功能包的src
+touch velocity_publisher.cpp(编写程序的cpp文件)
+
+#配置cmake,功能包内的cmakelist.txt文件
+
+注意一定要在find_package() 和 include_directories()之间使用命令 catkin_package(),这会帮你自动构建（不然可能无法找到可以运行的node，即可执行文件，我有另一篇文档说明)
+
+#回到ros_ws
+catkin_make编译
+
+#能生成功能包在devel/lib下，包内有可执行文件
+source devel/setup.bash
+
+如果没有配置的话，每次运行可执行文件都要先source
+
+osrun your_package your_node (your_node是在CMakeLists.txt中的add_executable或者add_library中声明）
